@@ -2,21 +2,27 @@ import { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import SearchBox from '../SearchBox/SearchBox'
 import css from './App.module.css'
-
 import NoteList from '../NoteList/NoteList';
-import ReactPaginate from 'react-paginate';
-import getNotes from '../../services/NoteService';
+import {getNotes} from '../../services/NoteService';
+import NoteForm from '../NoteForm/NoteFrom';
+import Pagination from '../Pagination/Pagination';
 
 
 function App() {
   const [text, setText] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-   const { data, isSuccess } = useQuery({
-    queryKey: ['posts', text, currentPage],
+  const openModal = () => setIsModalOpen(true);
+  const setCloseModal = () => setIsModalOpen(false);
+
+ 
+
+  const { data, isSuccess } = useQuery({
+    queryKey: ['posts', text, currentPage, isModalOpen],
     queryFn: () => getNotes(text, currentPage),
     placeholderData: keepPreviousData,
-    
+
   });
 
   const totalPages = data?.totalPages ?? 0;
@@ -28,21 +34,12 @@ function App() {
         <header className={css.toolbar}>
           <SearchBox Search={setText} />
           {isSuccess && totalPages > 1 && (
-        <ReactPaginate
-          pageCount={totalPages}
-          pageRangeDisplayed={5}
-          marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setCurrentPage(selected + 1)}
-          forcePage={currentPage - 1}
-          containerClassName={css.pagination}
-          activeClassName={css.active}
-          nextLabel="→"
-          previousLabel="←"
-        />
-      )}
-          <button className={css.button}>Create note +</button>
+            <Pagination total={totalPages} current={currentPage} swipe={setCurrentPage} />
+          )}
+          <button className={css.button} onClick={openModal}>Create note +</button>
         </header>
         <main>
+          {isModalOpen && (<NoteForm closeModal={setCloseModal} />)}
           <NoteList list={data?.notes ?? []} />
         </main>
       </div>

@@ -6,3 +6,9 @@ export default interface Notes {
     tag: string,
     updateAt: string,
 }
+
+export default interface InitialValuesProp {
+    title: string,
+    content: string,
+    tag: string;
+}
