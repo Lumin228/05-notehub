@@ -19,7 +19,7 @@ function App() {
  
 
   const { data, isSuccess } = useQuery({
-    queryKey: ['posts', text, currentPage, isModalOpen],
+    queryKey: ['posts', text, currentPage],
     queryFn: () => getNotes(text, currentPage),
     placeholderData: keepPreviousData,
 

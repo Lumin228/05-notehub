@@ -2,7 +2,9 @@ import { Field, Formik, Form } from 'formik';
 import css from './NoteForm.module.css'
 import { useEffect } from 'react';
 import type InitialValuesProp from '../../types/note';
-import { createNoteRequest, getNotes } from '../../services/NoteService';
+import { createNoteRequest } from '../../services/NoteService';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 
 interface NoteFormProp {
     closeModal: () => void;
@@ -34,10 +36,18 @@ function NoteForm({ closeModal }: NoteFormProp) {
   };
     const formValues: InitialValuesProp = { title: '', content: '', tag: 'Todo' }
 
+    const queryClient = useQueryClient();
+        
+    const mutation = useMutation({
+    mutationFn: (values: InitialValuesProp) => createNoteRequest(values),
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+    });
 
 const sayRes = (values: InitialValuesProp, {resetForm}) => {
   console.log(values);
-  createNoteRequest(values)
+  mutation.mutate(values);
   resetForm();
   closeModal();
 };
